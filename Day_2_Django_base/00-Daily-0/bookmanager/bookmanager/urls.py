@@ -35,6 +35,6 @@ urlpatterns = [
     # path
     # path 的第一个参数是路由
     # path 的第二个参数 是视图函数名
-    path('book/', include('book.urls')),
+    path('', include('book.urls')),
 
 ]

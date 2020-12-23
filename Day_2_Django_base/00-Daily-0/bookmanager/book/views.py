@@ -6,4 +6,7 @@ from django.http.response import HttpResponse
 # Create your views here.
 
 def index(request):
-    return HttpResponse('this is edge')
+    data = {
+        'show': '圣诞快乐'
+    }
+    return render(request, 'book/index.html', context=data)
