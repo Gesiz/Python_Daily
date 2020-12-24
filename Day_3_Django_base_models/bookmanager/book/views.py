@@ -44,3 +44,8 @@ book = BookInfo.object.get(id=2)
 book.delete()
 # 方法二 直接删除
 BookInfo.objects.filter(id=2).delete()
+
+# 查询所有结果 all() count()
+BookInfo.objects.all()
+BookInfo.objects.all().count()
+BookInfo.objects.count()
