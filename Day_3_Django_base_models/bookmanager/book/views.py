@@ -79,3 +79,19 @@ BookInfo.objects.filter(name__endswith='部')
 BookInfo.objects.filter(name__idnull=True)
 # 查询编号为 1，3，5的图书
 BookInfo.objects.filter(id__in=[1, 3, 5])
+
+
+# 查询 编号大于三的图书
+BookInfo.objects.filter(id__gt=3)
+# gt
+# gte
+# lt
+# lte
+
+# 查询 1980发表的图书
+BookInfo.objects.filter(pub_date__year='1980')
+# 查询 大于1980年的图书
+BookInfo.objects.filter(pub_date__gt='1980-1-1')
+# 查询编号不能鱼3的书
+BookInfo.objects.exclude(id=3)
+
