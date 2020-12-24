@@ -80,7 +80,6 @@ BookInfo.objects.filter(name__idnull=True)
 # 查询编号为 1，3，5的图书
 BookInfo.objects.filter(id__in=[1, 3, 5])
 
-
 # 查询 编号大于三的图书
 BookInfo.objects.filter(id__gt=3)
 # gt
@@ -94,4 +93,17 @@ BookInfo.objects.filter(pub_date__year='1980')
 BookInfo.objects.filter(pub_date__gt='1980-1-1')
 # 查询编号不能鱼3的书
 BookInfo.objects.exclude(id=3)
+
+# F 对象
+from django.db.models import F
+
+# 两个属性的比较
+# 查询阅读量大于评论的对象
+BookInfo.objects.filter(readcount__gte=F('commentcount'))
+BookInfo.objects.filter(readcount__gte=F('commentcount') * 2)  # 可以做逻辑运算
+
+# 查询编号大于 2 并且阅读量大于20的图书
+BookInfo.objects.filter(id__gt=2).filter(readcount__gt=20)
+BookInfo.objects.filter(id__gt=2,readcount__gt=20)
+
 
