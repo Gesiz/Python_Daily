@@ -9,7 +9,7 @@ class BookInfo(models.Model):
     pub_date = models.DateField(null=True)
     readcount = models.IntegerField(default=0)
     commentcount = models.IntegerField(default=0)
-    is_detele = models.BooleanField(default=False)
+    is_delete = models.BooleanField(default=False)
 
     class Meta:
         db_table = 'bookinfo'
@@ -29,7 +29,7 @@ class PeopleInfo(models.Model):
     gender = models.SmallIntegerField(choices=GENDER_CHOICE, default=0)
     description = models.CharField(max_length=10)
     is_delete = models.BooleanField(default=False)
-
+    book_id = models.ForeignKey(BookInfo,on_delete=models.CASCADE)
     class Meta:
         db_table = 'peopleinfo'
         verbose_name = '人物信息'
