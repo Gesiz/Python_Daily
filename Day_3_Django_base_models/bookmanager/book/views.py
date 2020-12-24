@@ -114,4 +114,16 @@ BookInfo.objects.filter(Q(id__gt=2) & Q(readcount_gt=20))
 BookInfo.objects.filter(Q(id__gt=2) | Q(readcount_gt=20))
 
 # 查询编号不为 3 的数据
-BookInfo.object.filter(~Q(id=3))
+BookInfo.objects.filter(~Q(id=3))
+
+from django.db.models import Max,Min,Avg,Count,Sum
+# 聚合函数
+# 求平均阅读量
+BookInfo.objects.aggregate(Avg('readcount'))
+# 聚合函数 部分返回 字典形式 未查询到会报错
+
+# 默认是升序
+BookInfo.objects.all().order_by('readcount')
+
+# 在查询字段 前增加 - 反转
+BookInfo.objects.all().order_by('-readcount')
