@@ -49,3 +49,10 @@ BookInfo.objects.filter(id=2).delete()
 BookInfo.objects.all()
 BookInfo.objects.all().count()
 BookInfo.objects.count()
+
+# 由于 get 方法只能查询唯一值 当查询结果不存在时 会抛出 DoesNotExist 异常
+# 可以使用 try: expect: 进行解决
+try:
+    BookInfo.objects.get(id=2)
+except Exception as e:
+    print(e)
