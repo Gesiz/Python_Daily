@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpRequest, HttpResponse
 from django.urls import path
-from book.models import BookInfo
+from book.models import BookInfo, PeopleInfo
 
 
 # Create your views here.
@@ -56,3 +56,26 @@ try:
     BookInfo.objects.get(id=2)
 except Exception as e:
     print(e)
+
+# 过滤查询
+# 1 filter 过滤多个结果 返回列表
+# 2 exclude  相当于 not 排除掉符合条件的剩下结果
+# 3 get 获取单一的结果
+
+# 在获取的时候可以通过 特殊运算符 来获取 预期期望 数据
+BookInfo.objects.filter(id_exact=1)  # exact 精确的 相当于 id=1
+# 若 filter 获取数据为空 则会返回空列表
+
+# 获取 图书 id 为 1 的人的数据
+PeopleInfo.objects.get(book_id_id=1)  # 当数据超过一个时会 抛出错误
+#  get() returned more than one PeopleInfo -- it returned 5!
+PeopleInfo.objects.filter(book_id_id=1)
+
+# 查询书名中包含 湖 的图书
+BookInfo.objects.filter(name__contains='湖')
+# 查询书名中 以 部 结尾的图书
+BookInfo.objects.filter(name__endswith='部')
+# 查询 署名为空的图书
+BookInfo.objects.filter(name__idnull=True)
+# 查询编号为 1，3，5的图书
+BookInfo.objects.filter(id__in=[1, 3, 5])
