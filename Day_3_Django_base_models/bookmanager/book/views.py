@@ -38,3 +38,9 @@ book.save()
 BookInfo.objects.filter(id=1).update(
     name='射雕英雄后传'
 )
+# 数据库的删除 两种方式
+# 1 . 通过 get id 获取对象实例 调用 delete 方法
+book = BookInfo.object.get(id=2)
+book.delete()
+# 方法二 直接删除
+BookInfo.objects.filter(id=2).delete()
