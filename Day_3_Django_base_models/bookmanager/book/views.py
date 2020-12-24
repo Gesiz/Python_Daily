@@ -104,6 +104,14 @@ BookInfo.objects.filter(readcount__gte=F('commentcount') * 2)  # 可以做逻辑
 
 # 查询编号大于 2 并且阅读量大于20的图书
 BookInfo.objects.filter(id__gt=2).filter(readcount__gt=20)
-BookInfo.objects.filter(id__gt=2,readcount__gt=20)
+BookInfo.objects.filter(id__gt=2, readcount__gt=20)
 
+from django.db.models import Q
 
+# Q 对象 & | ~
+BookInfo.objects.filter(Q(id__gt=2) & Q(readcount_gt=20))
+# 查询编号大于2 或者阅读量小于20的
+BookInfo.objects.filter(Q(id__gt=2) | Q(readcount_gt=20))
+
+# 查询编号不为 3 的数据
+BookInfo.object.filter(~Q(id=3))
