@@ -6,4 +6,8 @@ from django.http import HttpResponse, request
 
 
 def index(request):
-    return HttpResponse('this is page')
+    # return HttpResponse('this is page')
+    data = {
+        'key': '元旦快乐',
+    }
+    return render(request, 'book/index.html', data)
