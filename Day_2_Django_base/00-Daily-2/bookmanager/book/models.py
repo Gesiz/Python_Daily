@@ -9,6 +9,9 @@ class BookInfo(models.Model):
     # name varchar(10)
     name = models.CharField(max_length=10)
 
+    def __str__(self):
+        return self.name
+
     class Meta:
         db_table = "bookinfo"
         verbose_name_plural = verbose_name = "书籍信息"
@@ -26,6 +29,9 @@ class PeopleInfo(models.Model):
     # 外键相关的知识 先自己回顾,我们在后天会将
     # 外键在数据库中,系统会自动为我们添加一个 _id
     book = models.ForeignKey(BookInfo, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.name
 
     class Meta:
         db_table = "peopleinfo"
