@@ -10,7 +10,7 @@ class BookInfo(models.Model):
     name = models.CharField(max_length=10)
 
     class Meta:
-        name = "bookinfo"
+        db_table = "bookinfo"
         verbose_name_plural = verbose_name = "书籍信息"
     # 人物
 
@@ -28,5 +28,5 @@ class PeopleInfo(models.Model):
     book = models.ForeignKey(BookInfo, on_delete=models.CASCADE)
 
     class Meta:
-        name = "peopleinfo"
+        db_table = "peopleinfo"
         verbose_name_plural = verbose_name = "人物信息"
