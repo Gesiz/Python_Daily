@@ -5,6 +5,7 @@ from django.http import JsonResponse
 from django.views import View
 from apps.users.models import User
 import re
+from django.contrib.auth import login
 
 
 # Create your views here.
@@ -19,7 +20,7 @@ class UsernameCountView(View):
         :return: JSON类型参数数据
         """
         count = User.objects.filter(username=username).count()
-        return JsonResponse(request, {'code': 0, 'errmsg': 'ok', 'count': count})
+        return JsonResponse({'code': 0, 'errmsg': 'ok', 'count': count})
 
 
 class MobileCountView(View):
@@ -32,7 +33,7 @@ class MobileCountView(View):
         :return: JSON类型参数数据
         """
         count = User.objects.filter(mobile=mobile).count()
-        return JsonResponse(request, {'code': 0, 'errmsg': 'ok', 'count': count})
+        return JsonResponse({'code': 0, 'errmsg': 'ok', 'count': count})
 
 
 class RegisterView(View):
@@ -46,6 +47,7 @@ class RegisterView(View):
         json_dict = json.loads(json_str)
 
         # 提取参数
+
         username = json_dict.get('username')
         password = json_dict.get('password')
         password2 = json_dict.get('password2')
@@ -73,6 +75,9 @@ class RegisterView(View):
             return JsonResponse({'code': 400, 'errmsg': 'allow格式有误!'})
         try:
             user = User.objects.create_user(username=username, password=password, mobile=mobile)
-        except Exception as e :
+        except Exception as e:
             return JsonResponse({'code': 400, 'errmsg': '注册失败'})
 
+        login(request, user)
+
+        return JsonResponse({'code': 0, 'errmsg': '注册成功'})
