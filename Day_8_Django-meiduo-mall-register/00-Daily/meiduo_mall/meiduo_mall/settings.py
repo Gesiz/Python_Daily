@@ -24,11 +24,12 @@ SECRET_KEY = 'v1kvwi&(^t@7396uk2pp1hj%l=^=t=hln@(8r(mnw)yje$l7$y'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1','www.meiduo.site']
+ALLOWED_HOSTS = ['127.0.0.1', 'www.meiduo.site']
 
 # Application definition
 
 INSTALLED_APPS = [
+    'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -39,6 +40,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -118,16 +120,15 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-
 CACHES = {
-    "default": { # 默认
+    "default": {  # 默认
         "BACKEND": "django_redis.cache.RedisCache",
         "LOCATION": "redis://172.30.112.102:6379/0",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
     },
-    "session": { # session
+    "session": {  # session
         "BACKEND": "django_redis.cache.RedisCache",
         "LOCATION": "redis://172.30.112.102:6379/1",
         "OPTIONS": {
@@ -181,3 +182,13 @@ LOGGING = {
 
 # 指定本项目用户模型类
 AUTH_USER_MODEL = 'users.User'
+
+# 凡是出现在白名单中的域名，都可以访问后端接口
+# CORS
+CORS_ORIGIN_WHITELIST = (
+    'http://127.0.0.1:8080',
+    'http://localhost:8080',
+    'http://www.meiduo.site:8080',
+    'http://www.meiduo.site:8000'
+)
+CORS_ALLOW_CREDENTIALS = True  # 允许携带cookie
