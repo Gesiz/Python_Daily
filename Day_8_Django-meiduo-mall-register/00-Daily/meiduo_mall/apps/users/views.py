@@ -30,3 +30,11 @@ class MobileCountView(View):
         """
         count = User.objects.filter(mobile=mobile).count()
         return JsonResponse(request, {'code': 0, 'errmsg': 'ok', 'count': count})
+
+class RegisterView(View):
+    def post(self,request):
+        """
+        :param request:  请求对象
+        :return:  注册结果
+        """
+        pass
