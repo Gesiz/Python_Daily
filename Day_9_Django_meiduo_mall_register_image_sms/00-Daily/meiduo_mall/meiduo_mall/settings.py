@@ -19,7 +19,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'v1kvwi&(^t@7396uk2pp1hj%l=^=t=hln@(8r(mnw)yje$l7$y'
+SECRET_KEY = '@livyk)ph7(uo(69=uk+_2ca#4z(%y@b89mtzmxu!!^))&&w_='
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -29,18 +29,16 @@ ALLOWED_HOSTS = ['127.0.0.1', 'www.meiduo.site']
 # Application definition
 
 INSTALLED_APPS = [
-    'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'apps.users'
+    'apps.users',
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -75,13 +73,13 @@ WSGI_APPLICATION = 'meiduo_mall.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',  # 数据库引擎
+        'ENGINE': 'django.db.backends.mysql',
         'HOST': '172.30.112.102',  # 数据库主机
         'PORT': 3306,  # 数据库端口
         'USER': 'root',  # 数据库用户名
         'PASSWORD': 'mysql',  # 数据库用户密码
         'NAME': 'meiduo_mall'  # 数据库名字
-    },
+    }
 }
 
 # Password validation
@@ -105,9 +103,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
 
-LANGUAGE_CODE = 'Zh-hans'
+LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'Asia/Shanghai'
+TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
@@ -120,8 +118,10 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+##############django-redis#######################
+# CACHES 缓存的配置
 CACHES = {
-    "default": {  # 默认
+    "default": {  # 默认的 预留
         "BACKEND": "django_redis.cache.RedisCache",
         "LOCATION": "redis://172.30.112.102:6379/0",
         "OPTIONS": {
@@ -135,10 +135,18 @@ CACHES = {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
     },
+    "code": {  # session
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://172.30.112.102:6379/2",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    },
 }
+# SESSION_ENGINE 让我们的session保存到缓存中
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+# SESSION_CACHE_ALIAS 让session保存到哪个redis的配置中
 SESSION_CACHE_ALIAS = "session"
-
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,  # 是否禁用已经存在的日志器
@@ -165,7 +173,7 @@ LOGGING = {
         'file': {  # 向文件中输出日志
             'level': 'INFO',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(BASE_DIR, 'logs/meiduo.log'),  # 日志文件的位置
+            'filename': os.path.join(BASE_DIR, 'logs/meiduo.log'),  # 日志文件的位
             'maxBytes': 300 * 1024 * 1024,
             'backupCount': 10,
             'formatter': 'verbose'
@@ -179,16 +187,3 @@ LOGGING = {
         },
     }
 }
-
-# 指定本项目用户模型类
-AUTH_USER_MODEL = 'users.User'
-
-# 凡是出现在白名单中的域名，都可以访问后端接口
-# CORS
-CORS_ORIGIN_WHITELIST = (
-    'http://127.0.0.1:8080',
-    'http://localhost:8080',
-    'http://www.meiduo.site:8080',
-    'http://www.meiduo.site:8000'
-)
-CORS_ALLOW_CREDENTIALS = True  # 允许携带cookie
