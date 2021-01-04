@@ -3,6 +3,7 @@ from django.views import View
 from apps.users.models import User
 from django.http.response import JsonResponse
 from django.contrib.auth import login
+from django_redis import get_redis_connection
 import json, re
 
 
@@ -31,9 +32,10 @@ class RegisterView(View):
         password = data.get('password')
         password2 = data.get('password2')
         mobile = data.get('mobile')
+        sms_code_client = data.get('sms_code')
         allow = data.get('allow')
 
-        if all([username, password, password2, mobile, allow]):
+        if not all([username, password, password2, mobile, allow]):
             return JsonResponse({'code': 400, 'errmsg': '参数不全'})
 
         if not re.match('[a-zA-Z0-9]{5,29}', username):
@@ -47,6 +49,14 @@ class RegisterView(View):
 
         if not re.match(r'1[3-9]\d{9}', mobile):
             return JsonResponse({'code': 400, 'errmsg': '电话号码格式不正确'})
+
+        redis_cli = get_redis_connection('code')
+        sms_code_server = redis_cli.get(f'sms_{mobile}')
+        if not sms_code_server:
+            return JsonResponse({'code': 400, 'errmsg': '短信验证码失效'})
+
+        if sms_code_client != sms_code_server.decode():
+            return JsonResponse({'code': 400, 'errmsg': '短信验证码错误'})
 
         if not allow:
             return JsonResponse({'code': 400, 'errmsg': '用户协议格式不正确'})

@@ -14,3 +14,11 @@ class MobileConverter:
     def to_python(self, value):
         # to_python：将匹配结果传递到视图内部时使用
         return value
+
+
+class UUIDConverter:
+    regex = r'[\w-]+'
+
+    def to_python(self, value):
+        return value
+
