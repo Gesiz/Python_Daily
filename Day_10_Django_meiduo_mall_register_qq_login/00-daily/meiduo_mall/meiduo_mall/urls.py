@@ -15,11 +15,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include, register_converter
-from utils.converters import UsernameConverter, MobileConverter
+from utils.converters import UsernameConverter, MobileConverter,UUIDConverter
 
+register_converter(UUIDConverter,'uuid')
 register_converter(UsernameConverter, 'uc')
 register_converter(MobileConverter, 'mc')
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('apps.users.urls'))
+    path('', include('apps.users.urls')),
+    path('',include('apps.verifications.urls')),
 ]

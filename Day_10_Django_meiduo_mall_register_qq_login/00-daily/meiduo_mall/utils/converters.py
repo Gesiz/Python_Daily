@@ -12,3 +12,13 @@ class MobileConverter:
 
     def to_python(self, value):
         return value
+
+
+class UUIDConverter:
+    """自定义路由转换器去匹配手机号"""
+    # 定义UUID的正则表达式
+    regex = '[\w-]+'
+
+    def to_python(self, value):
+        # to_python：将匹配结果传递到视图内部时使用
+        return str(value)
