@@ -53,18 +53,22 @@ class SMSCodeView(View):
         p1.setex(f'send_flag_{mobile}', 60, 1)
         p1.execute()
 
-        accId = '8aaf0708762cb1cf0176c60392973587'
-        accToken = 'a099e3b6a8a14e09bae6d133051decb9'
-        appId = '8aaf0708762cb1cf0176c603936b358e'
-        sdk = SmsSDK(accId, accToken, appId)
+        # accId = '8aaf0708762cb1cf0176c60392973587'
+        # accToken = 'a099e3b6a8a14e09bae6d133051decb9'
+        # appId = '8aaf0708762cb1cf0176c603936b358e'
+        # sdk = SmsSDK(accId, accToken, appId)
+        #
+        # tid = '1'
+        # mobile = f'{mobile}'
+        # datas = (sms_code, 2)
+        # resp = sdk.sendMessage(tid, mobile, datas)
+        # data = json.loads(resp)
+        #
+        # if data.get('statusCode') == '000000':
+        #     return JsonResponse({'code': 0, 'errmsg': 'ok'})
+        # else:
+        #     return JsonResponse({'code': 400, 'errmsg': '稍后再试'})
 
-        tid = '1'
-        mobile = f'{mobile}'
-        datas = (sms_code, 2)
-        resp = sdk.sendMessage(tid, mobile, datas)
-        data = json.loads(resp)
-
-        if data.get('statusCode') == '000000':
-            return JsonResponse({'code': 0, 'errmsg': 'ok'})
-        else:
-            return JsonResponse({'code': 400, 'errmsg': '稍后再试'})
+        from celery_tasks.sms.task import send_sms_code
+        send_sms_code(mobile, sms_code)
+        return JsonResponse({'code': 0, 'errmsg': '发送成功'})
