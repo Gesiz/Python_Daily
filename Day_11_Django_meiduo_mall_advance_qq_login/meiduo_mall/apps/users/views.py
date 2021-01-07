@@ -2,6 +2,7 @@ from django.shortcuts import render
 
 # Create your views here.
 from django.views import View
+from django.contrib.auth import login
 from apps.users.models import User
 from django.http import JsonResponse
 import json, re
@@ -81,5 +82,7 @@ class RegisterView(View):
                                             mobile=mobile)
         except Exception as e:
             return JsonResponse({'code': 400, 'errmsg': '注册失败!'})
+
+        login(request, user)
 
         return JsonResponse({'code': 0, 'errmsg': '注册成功!'})
