@@ -2,10 +2,12 @@ from django.shortcuts import render
 
 # Create your views here.
 from django.views import View
-from django.contrib.auth import login
+from django.contrib.auth import login, authenticate, logout
 from apps.users.models import User
 from django.http import JsonResponse
 import json, re
+
+from utils.views import LoginRequiredJSONMixin
 
 
 class UsernameCountView(View):
@@ -86,3 +88,149 @@ class RegisterView(View):
         login(request, user)
 
         return JsonResponse({'code': 0, 'errmsg': '注册成功!'})
+
+
+class LoginView(View):
+    """用户名登录"""
+
+    def post(self, request):
+        # 1.接收参数
+        dict = json.loads(request.body.decode())
+        username = dict.get('username')
+        password = dict.get('password')
+        remembered = dict.get('remembered')
+
+        # 2.校验(整体 + 单个)
+        if not all([username, password]):
+            return JsonResponse({'code': 400,
+                                 'errmsg': '缺少必传参数'})
+        # 判断多用户登录
+        import re
+        if re.match(r'^1[3-9]\d{9}$', username):
+            # 手机号
+            User.USERNAME_FIELD = 'mobile'
+        else:
+            # account 是用户名
+            # 根据用户名从数据库获取 user 对象返回.
+            User.USERNAME_FIELD = 'username'
+
+        # 3.验证是否能够登录
+        user = authenticate(username=username,
+                            password=password)
+
+        # 判断是否为空,如果为空,返回
+        if user is None:
+            return JsonResponse({'code': 400,
+                                 'errmsg': '用户名或者密码错误'})
+        # 4.状态保持
+        login(request, user)
+
+        # 5.判断是否记住用户
+        if remembered != True:
+            # 7.如果没有记住: 关闭立刻失效
+            request.session.set_expiry(0)
+        else:
+            # 6.如果记住:  设置为两周有效
+            request.session.set_expiry(None)
+
+        # 8.返回json
+        response = JsonResponse({'code': 0,
+                                 'errmsg': 'ok'})
+        response.set_cookie('username', user.username, max_age=3600 * 24 * 15)
+
+        return response
+
+
+class LogoutView(View):
+    """退出登录"""
+
+    def delete(self, request):
+        """实现退出登录逻辑"""
+        # 清理session
+        logout(request)
+        # 退出登录，重定向到登录页
+        response = JsonResponse({'code': 0,
+                                 'errmsg': 'ok'})
+        # 退出登录时清除cookie中的username
+        response.delete_cookie('username')
+
+        return response
+
+
+class UserInfoView(LoginRequiredJSONMixin, View):
+    """添加邮箱"""
+
+    def put(self, request):
+        """提供个人信息界面"""
+
+        # 获取界面需要的数据,进行拼接
+        info_data = {
+            'username': request.user.username,
+            'mobile': request.user.mobile,
+            'email': request.user.email,
+            'email_active': request.user.email_active
+        }
+
+        # 返回响应
+        return JsonResponse({'code': 0,
+                             'errmsg': 'ok',
+                             'info_data': info_data})
+
+
+class EmailView(View):
+    """添加邮箱"""
+
+    def put(self, request):
+        """实现添加邮箱逻辑"""
+        # 接收参数
+        json_dict = json.loads(request.body.decode())
+        email = json_dict.get('email')
+
+        # 校验参数
+        if not email:
+            return JsonResponse({'code': 400,
+                                 'errmsg': '缺少email参数'})
+        if not re.match(r'^[a-z0-9][\w\.\-]*@[a-z0-9\-]+(\.[a-z]{2,5}){1,2}$', email):
+            return JsonResponse({'code': 400,
+                                 'errmsg': '参数email有误'})
+        # 赋值email字段
+        try:
+            request.user.email = email
+            request.user.save()
+        except Exception as e:
+
+            return JsonResponse({'code': 0, 'errmsg': '添加邮箱失败'})
+
+        # 异步发送验证邮件
+        from celery_tasks.email.tasks import send_verify_email
+        from apps.users.utils import generate_verify_email_url
+        verify_url = generate_verify_email_url(request.user)
+        send_verify_email.delay(email, verify_url)
+        # 响应添加邮箱结果
+        return JsonResponse({'code': 0, 'errmsg': '添加邮箱成功'})
+
+class VerifyEmailView(View):
+    def put(self, request):
+        # - 1.接收 token
+        token = request.GET.get('token')
+
+        if not token:
+            return JsonResponse({'code': 400, 'errmsg': 'token缺少'})
+
+        # - 2.解密
+        from apps.users.utils import check_verify_email_token
+        data_dict = check_verify_email_token(token)
+
+        # - 4.去数据库对比 user_id,email
+        try:
+            user = User.objects.get(pk=data_dict.get('user_id'), email=data_dict.get('email'))
+        except Exception as e:
+            print(e)
+            return JsonResponse({'code': 400, 'errmsg': '参数有误!'})
+
+        # - 5.修改激活状态
+        try:
+            user.email_active = True
+            user.save()
+        except Exception as e:
+            return JsonResponse({'code': 0, 'errmsg': '激活失败!'})

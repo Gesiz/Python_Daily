@@ -27,4 +27,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('apps.users.urls')),
     path('', include('apps.verifications.urls')),
+    path('', include('apps.areas.urls')),
 ]
