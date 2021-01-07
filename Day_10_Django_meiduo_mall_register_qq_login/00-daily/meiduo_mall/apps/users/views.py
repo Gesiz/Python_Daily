@@ -2,7 +2,7 @@ from django.shortcuts import render
 from apps.users.models import User
 from django.http import JsonResponse
 from django.views import View
-from django.contrib.auth import login
+from django.contrib.auth import login, authenticate, logout
 from django_redis import get_redis_connection
 import json, re
 
@@ -88,3 +88,70 @@ class RegisterView(View):
 
         login(request, user)
         return JsonResponse({'code': 0, 'errmsg': '注册成功!'})
+
+
+class LoginView(View):
+
+    def post(self, request):
+        idict = json.loads(request.body.decode())
+        username = idict.get('username')
+        password = idict.get('password')
+        remembered = idict.get('remembered')
+
+        if not all([username, password]):
+            return JsonResponse({'code': 400,
+                                 'errmsg': '缺少必传参数'})
+
+        if re.match('^1[3-9]\d{9}$', username):
+            # 手机号
+            User.USERNAME_FIELD = 'mobile'
+        else:
+            # account 是用户名
+            # 根据用户名从数据库获取 user 对象返回.
+            User.USERNAME_FIELD = 'username'
+
+        user = authenticate(username=username,
+                            password=password)
+
+        if user is None:
+            return JsonResponse({'code': 400,
+                                 'errmsg': '用户名或者密码错误'})
+
+        login(request, user)
+        if not remembered:
+            # 7.如果没有记住: 关闭立刻失效
+            request.session.set_expiry(0)
+        else:
+            # 6.如果记住:  设置为两周有效
+            request.session.set_expiry(None)
+
+            # 8.返回json
+        response = JsonResponse({'code': 0, 'errmsg': 'ok'})
+        response.set_cookie('username', user.username, max_age=15 * 24 * 3600)
+        return response
+
+
+class LogoutView(View):
+    def delete(self, request):
+        logout(request)
+        response = JsonResponse({'code': 400, 'errmsg': 'ok'})
+        response.delete_cookie('username')
+        return response
+
+
+from utils.views import LoginRequiredJSONMixin
+
+
+class UserInfoView(LoginRequiredJSONMixin, View):
+    """添加邮箱"""
+
+    def put(self, request):
+        """实现添加邮箱逻辑"""
+        user = request.user
+        user_info = {
+            'username': user.username,
+            'mobile': user.mobile,
+            'email': user.email,
+            'email_activate': False,  # 明天才讲 email_active 先给一个固定值
+        }
+        return JsonResponse({'code': 0, 'errmsg': 'ok', 'info_data': user_info})

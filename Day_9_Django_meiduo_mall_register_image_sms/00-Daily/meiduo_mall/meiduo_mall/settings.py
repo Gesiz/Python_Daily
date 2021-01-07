@@ -36,7 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'apps.users',
+    'apps.apps',
 ]
 
 MIDDLEWARE = [
@@ -189,7 +189,7 @@ LOGGING = {
         },
     }
 }
-AUTH_USER_MODEL = 'users.User'
+AUTH_USER_MODEL = 'apps.User'
 ##########################
 # 4. CORS
 CORS_ORIGIN_WHITELIST = (

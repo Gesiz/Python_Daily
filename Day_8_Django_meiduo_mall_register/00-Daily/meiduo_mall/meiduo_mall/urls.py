@@ -22,5 +22,5 @@ register_converter(MobileConverter, 'mc')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('',include('apps.users.urls'))
+    path('',include('apps.apps.urls'))
 ]

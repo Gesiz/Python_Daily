@@ -36,7 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'apps.users'
+    'apps.apps'
 ]
 
 MIDDLEWARE = [
@@ -181,7 +181,7 @@ LOGGING = {
 }
 
 # 指定本项目用户模型类
-AUTH_USER_MODEL = 'users.User'
+AUTH_USER_MODEL = 'apps.User'
 
 # 凡是出现在白名单中的域名，都可以访问后端接口
 # CORS
