@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include, register_converter
-from utils.converters import UsernameConverter, MobileConverter,UUIDConverter
+from utils.converters import UsernameConverter, MobileConverter, UUIDConverter
 
 register_converter(UsernameConverter, 'username')
 register_converter(MobileConverter, 'mobile')
@@ -25,4 +25,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('apps.users.urls')),
     path('', include('apps.verifications.urls')),
+    path('', include('apps.oauth.urls')),
 ]

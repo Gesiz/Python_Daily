@@ -137,15 +137,21 @@ from utils.views import LoginRequiredJSONMixin
 class UserInfoView(LoginRequiredJSONMixin, View):
     """用户中心"""
 
-    def get(self, request):
-        """提供个人信息界面"""
-        return JsonResponse({
-            'code': 0,
-            'errmsg': '个人中心',
-            "info_data": {
-                "username": "itcast",
-                "mobile": "18310820688",
-                "email": "",
-                "email_active": 'true'
+    class UserInfoView(LoginRequiredJSONMixin, View):
+        """用户中心"""
+
+        def get(self, request):
+            """提供个人信息界面"""
+
+            # 获取界面需要的数据,进行拼接
+            info_data = {
+                'username': request.user.username,
+                'mobile': request.user.mobile,
+                'email': request.user.email,
+                'email_active': request.user.email_active
             }
-        })
+
+            # 返回响应
+            return JsonResponse({'code': 0,
+                                 'errmsg': 'ok',
+                                 'info_data': info_data})
