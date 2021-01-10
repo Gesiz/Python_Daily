@@ -155,3 +155,63 @@ class UserInfoView(LoginRequiredJSONMixin, View):
             return JsonResponse({'code': 0,
                                  'errmsg': 'ok',
                                  'info_data': info_data})
+
+import json
+import re
+from django import http
+class EmailView(View):
+    """添加邮箱"""
+
+    def put(self, request):
+        """实现添加邮箱逻辑"""
+        # 接收参数
+        json_dict = json.loads(request.body.decode())
+        email = json_dict.get('email')
+
+
+
+            # 赋值email字段
+        try:
+            request.user.email = email
+            request.user.save()
+        except Exception as e:
+
+            return http.JsonResponse({'code': 0, 'errmsg': '添加邮箱失败'})
+
+        # 异步发送验证邮件
+        from celery_tasks.email.tasks import send_mail
+        from .utils import generate_verify_email_url
+        verify_url = generate_verify_email_url(request.user)
+        send_mail().delay(email, verify_url)
+
+        # 响应添加邮箱结果
+        return http.JsonResponse({'code': 0, 'errmsg': '添加邮箱成功'})
+
+        # 响应添加邮箱结果
+        return http.JsonResponse({'code':0, 'errmsg': '添加邮箱成功'})
+
+class VerifyEmailView(View):
+    def put(self, request):
+        # - 1.接收 token
+        token = request.GET.get('token')
+
+        if not token:
+            return JsonResponse({'code': 400, 'errmsg': 'token缺少'})
+
+        # - 2.解密
+        from .utils import check_verify_email_token
+        data_dict = check_verify_email_token(token)
+
+        # - 4.去数据库对比 user_id,email
+        try:
+            user = User.objects.get(pk=data_dict.get('user_id'), email=data_dict.get('email'))
+        except Exception as e:
+            print(e)
+            return JsonResponse({'code': 400, 'errmsg': '参数有误!'})
+
+        # - 5.修改激活状态
+        try:
+            user.email_active = True
+            user.save()
+        except Exception as e:
+            return JsonResponse({'code': 0, 'errmsg': '激活失败!'})
